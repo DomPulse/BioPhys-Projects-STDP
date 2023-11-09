@@ -1,4 +1,5 @@
 import numpy as np
+#units of I are probably pico amps, should check up on that
 
 class myNeuron():
 	def __init__(self, V=-65, u=-13, a=0.02, b=0.2, c=-65, d=2,  I=0, jF = False, exin = 1): 
@@ -48,8 +49,9 @@ def step_v(NeurArray):
 def step_I(NeurArray, SynArray):
 
 	for PreNeurIdx in range(0, len(NeurArray)):
-		for PostNeurIdx in range(0, len(NeurArray)):
-			NeurArray[PostNeurIdx].I += SynArray[PreNeurIdx][PostNeurIdx]*NeurArray[PreNeurIdx].jF*NeurArray[PreNeurIdx].exin
+		if NeurArray[PreNeurIdx].jF:
+			for PostNeurIdx in range(0, len(NeurArray)):
+				NeurArray[PostNeurIdx].I += SynArray[PreNeurIdx][PostNeurIdx]*NeurArray[PreNeurIdx].exin
 
 	return NeurArray
 
