@@ -16,6 +16,9 @@ look_back = 20
 train_data = iris.give_train()
 train_data = train_data + iris.give_test()
 max_input_frequency = 0.5
+increase_weight = 1
+decrease_weight = 1.05 #this was implicitly 1 in previous iterations
+min_syn_weight = 0.02
 
 def IrisSim(NeurArray, SynArray, IrisIdx = 75):
 	jFs = np.zeros((num_neurons, sim_length))
@@ -45,15 +48,17 @@ def STDP(jFs, SynArray, exin_array):
 							for t_prev in range(t - 1, t - look_back - 1, -1):
 								if jFs[presyn_idx][t_prev] == 1:
 									delta_t = t - t_prev
-									SynArray[presyn_idx][postsyn_idx] += np.exp(-1*delta_t/look_back)*(SynArray[presyn_idx][postsyn_idx] != 0)*exin_array[presyn_idx]/(sim_length)
-									SynArray[postsyn_idx][presyn_idx] -= np.exp(delta_t/look_back)*(SynArray[postsyn_idx][presyn_idx] != 0)*exin_array[postsyn_idx]/(sim_length)
+									SynArray[presyn_idx][postsyn_idx] += increase_weight*np.exp(-1*delta_t/look_back)*(SynArray[presyn_idx][postsyn_idx] >= min_syn_weight)*exin_array[presyn_idx]/(sim_length)
+									SynArray[postsyn_idx][presyn_idx] -= decrease_weight*np.exp(delta_t/look_back)*(SynArray[postsyn_idx][presyn_idx] >= min_syn_weight)*exin_array[postsyn_idx]/(sim_length)
 									break
-	SynArray = satl.clip(SynArray)
-	#SynArray = satl.normalize(SynArray, des_sum_of_output)
+	#SynArray = satl.clip(SynArray)
+	SynArray = satl.normalize_output_strength(SynArray, des_sum_of_output)
 	return SynArray
 
 SynArray = satl.gen_syn(num_input, num_excite, des_sum_of_output)
-np.save('rand_brain.npy', SynArray)
+SynArray = satl.clip(SynArray)
+#np.save('rand_brain_frequent_norm_and_limit_weight_decrease.npy', SynArray)
+SynArray = np.load("train_brain_frequent_norm_and_limit_weight_decrease.npy")
 
 print(SynArray)
 exin_array = []
@@ -80,16 +85,15 @@ for t in range(0, sim_length):
 			plt.plot(t, n, marker="o", markersize=5, markeredgecolor=color, markerfacecolor="white")
 plt.show()
 
-num_train = 3000
+num_train = 30000
 for k in range(0, num_train):
 	if k%150 == 0:
 		print(str(k)+"/"+str(num_train))
-		SynArray = satl.normalize(SynArray, des_sum_of_output)
 
 	i = np.random.randint(0, 150)
 	SynArray = STDP(IrisSim(NeurArray, SynArray, i%150), SynArray, exin_array)
 
-np.save('train_brain_poisson_better_maybe.npy', SynArray)
+np.save('long_retrain_brain_frequent_norm_and_limit_weight_decrease.npy', SynArray)
 
 jFs = IrisSim(NeurArray, SynArray, IrisIdx)
 
