@@ -20,18 +20,20 @@ def gen_syn(num_in = 4, num_exite = 3, des_sum_out_in_weights = 5):
 
 	for pre_syn_idx in range(num_neurons - num_inhib, num_neurons):
 		for post_syn_idx in range(num_in, num_in + num_exite):
-			if post_syn_idx != pre_syn_idx + num_exite:
+			if post_syn_idx != pre_syn_idx - num_exite:
 				SynMask[pre_syn_idx][post_syn_idx] = 1 #connects each inhibitory to each exitatory neuron except the one that stimulates it
 	SynArray = np.multiply(SynMask, SynArray)
 	SynArray = normalize_output_strength(SynArray, des_sum_out_in_weights)
 	return SynArray
 
-def clip(SynArray):
+def clip(SynArray, max_syn_weight = 10000, min_syn_weight=0):
 	num_neurons = len(SynArray)
 	for post_syn_idx in range(0, num_neurons):
 		for pre_syn_idx in range(0, num_neurons):
-			if SynArray[pre_syn_idx][post_syn_idx] < 0:
-				SynArray[pre_syn_idx][post_syn_idx] = 0 #clip it to avoid exitatory becoming inhibitory and also runaway growth in magnitude of weights
+			if SynArray[pre_syn_idx][post_syn_idx] < min_syn_weight:
+				SynArray[pre_syn_idx][post_syn_idx] = min_syn_weight #clip it to avoid exitatory becoming inhibitory and also runaway growth in magnitude of weights
+			if SynArray[pre_syn_idx][post_syn_idx] > max_syn_weight:
+				SynArray[pre_syn_idx][post_syn_idx] = max_syn_weight #clip it to avoid exitatory becoming inhibitory and also runaway growth in magnitude of weights
 	return SynArray
 
 def normalize(SynArray, des_sum_of_in_weights):
