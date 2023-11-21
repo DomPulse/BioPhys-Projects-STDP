@@ -1,0 +1,13 @@
+This was trained with STDP
+The output strength of each neuron was "normalized"
+That is, the sum of the output weights of each neuron added together was some set value
+They could never be negative
+The total was 10*number of exitatory neurons
+So the average output weight of a given neuron was 10 pA (units?)
+The resulting output has very clear difference in firing rates between category 1 to categories 2 and 3
+Categories 2 and 3 are mostly the same, cannot see a clear difference
+
+Limitiations are 3 fold
+The inability to clasify categories 2 vs 3
+The majority of exitatory neurons almost never fire
+The input to exitatory weights trend toward extreme values
