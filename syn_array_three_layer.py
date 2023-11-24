@@ -67,4 +67,18 @@ def normalize_output_strength(SynArray, des_sum_out_in_weights):
 				SynArray[pre_syn_idx][post_syn_idx]*=des_sum_out_in_weights/(sum_of_outs)
 	return SynArray
 
+def firing_rate_normal(SynArray, RateArray, DesRateArray, exin_array, num_in, num_exite, NumToNorm):
+	num_neurons = num_in+num_exite*2
+	#avgFireTotal = np.sum(RateArray)/num_neurons
+	for post_syn_idx in range(num_in, num_in+num_exite):
+		postFireTotal = RateArray[post_syn_idx]
+		for pre_syn_idx in range(0, num_neurons):
+			#there was a version of this code that wasn't given the desired rate of each neuron
+			#it worked by making each neuron try to achieve the average
+			#the update for the SynArray was thus
+			#SynArray[pre_syn_idx][post_syn_idx] *= (avgFireTotal/postFireTotal)**(exin_array[pre_syn_idx])
+			SynArray[pre_syn_idx][post_syn_idx] *= (DesRateArray[post_syn_idx]*NumToNorm/postFireTotal)**(exin_array[pre_syn_idx])
+
+	return SynArray
+
 #print(gen_syn())
